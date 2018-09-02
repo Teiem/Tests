@@ -1,0 +1,145 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body id="iBody">
+    <div id="StripesWraper">
+        <div class="MenuElements" id="Id0">1</div>
+        <div class="MenuElements" id="Id1">2</div>
+        <div class="MenuElements" id="Id2">3</div>
+        <div class="MenuElements" id="Id3">4</div>
+    </div>
+    <div id="XAndY">
+        <div id="ix"></div>
+        <div id="iy"></div>
+        <div id="iElWidthX"></div>
+        <div id="icloseElement"></div>
+        <div id="iSubsection"></div>
+        <div id="iNextElement"></div>
+        <div id="iOtherElement"></div>
+        <div id="iPlusOrMinus"></div>
+        <div id="idistanceY"></div>
+    </div>
+</body>
+
+</html>
+
+<style>
+    body {
+        margin: 4.5vh 5vw;
+        border-color: black;
+        border-width: 3px;
+        border-style: dashed;
+        width: 90vw;
+        height: 90vh;
+    }
+
+    .MenuElements {
+        background-color: aqua;
+        width: 100px;
+        height: 25%;
+    }
+
+    .MenuElements:hover {
+        transition: all 0.4s
+    }
+
+    #XAndY {
+        position: fixed;
+        top: 0;
+        left: 50%;
+        margin-top: 5vh;
+    }
+
+    .SmoothTransition {
+        transition: all 0.1s ease-out
+    }
+
+    #StripesWraper > *:hover {
+        background-color:cornsilk !important
+    }
+</style>
+
+<script>
+    function ResettStripes() {
+        document.getElementById("Id0").style.width = 100;
+        document.getElementById("Id1").style.width = 100;
+        document.getElementById("Id2").style.width = 100;
+        document.getElementById("Id3").style.width = 100;
+        document.getElementById("Id0").classList.add("SmoothTransition");
+        document.getElementById("Id1").classList.add("SmoothTransition");
+        document.getElementById("Id2").classList.add("SmoothTransition");
+        document.getElementById("Id3").classList.add("SmoothTransition");
+    }
+
+    document.addEventListener('mousemove', evt => {
+
+        var rect = document.getElementById("iBody").getBoundingClientRect();
+        var WindowHeight = document.getElementById('StripesWraper').offsetHeight;
+        var WindowWidth = document.getElementById('StripesWraper').offsetWidth;
+        var x = (evt.clientX - 100 - rect.left) / WindowWidth;
+        if (x < -100 / WindowWidth) {
+            x = 1;
+        };
+        var y = (evt.clientY - rect.top) / WindowHeight;
+        var ElWidthX = (1 / (2 * Math.pow(-x + 1, 3) - 3 * Math.pow(-x + 1, 2) + 1)) * 1;
+        // f(x)=a(-x+1)^(3) - b(-x+1)^(2) + 1
+
+        if (x >= 0 && x < 1 && y >= 0 && y < 1) {
+            document.getElementById("ix").innerHTML = "x: " + x;
+            document.getElementById("iy").innerHTML = "y: " + y;
+            document.getElementById("iElWidthX").innerHTML = "w: " + ElWidthX + " + 100";
+
+            var closeElement = Math.floor(y * 4);
+            document.getElementById("Id" + closeElement).classList.remove("SmoothTransition");
+
+            if (document.querySelector("#StripesWraper > div:hover") == null) {
+                document.getElementById("Id" + closeElement).style.width = ElWidthX + 100;
+            } else {
+                document.getElementById("Id" + closeElement).style.width = "100%";
+            }
+            
+            document.getElementById("icloseElement").innerHTML = "c: " + closeElement;
+
+            var Subsection = Math.floor(y * 16);
+            var nextElement = 0;
+            var PlusOrMinus;
+
+            function nextOne() {
+                if (Subsection % 4 != 1 && Subsection % 4 != 2 && Subsection != 0 && Subsection != 15 && x != 1) {
+                    PlusOrMinus = (Subsection % 2 * 2 - 1);
+                    nextElement = closeElement + PlusOrMinus;
+                    distanceY = 1 - Math.abs(((closeElement + nextElement) / 2 + 0.5) / 4 - y) * 16
+                    // console.log(distanceY)
+                    document.getElementById("Id" + nextElement).classList.remove("SmoothTransition");
+                    document.getElementById("Id" + nextElement).style.width = (ElWidthX * distanceY) + 100;
+                } else {
+                    distanceY = 0;
+                    nextElement = 0;
+                    if (closeElement > 0) {
+                        document.getElementById("Id" + (closeElement - 1)).classList.add("SmoothTransition");
+                        document.getElementById("Id" + (closeElement - 1)).style.width = 100;
+                    } else {
+                        document.getElementById("Id" + (closeElement + 1)).classList.add("SmoothTransition");
+                        document.getElementById("Id" + (closeElement + 1)).style.width = 100;
+                    }
+                }
+            }
+            nextOne()
+
+            document.getElementById("iNextElement").innerHTML = "n: " + nextElement;
+            document.getElementById("iSubsection").innerHTML = "s: " + Subsection;
+            document.getElementById("iPlusOrMinus").innerHTML = "p: " + PlusOrMinus;
+            document.getElementById("idistanceY").innerHTML = "d: " + distanceY;
+
+            // In case I need the css
+            // document.documentElement.style.setProperty('--mouse-x', x); 
+            // document.documentElement.style.setProperty('--mouse-y', y);
+        }
+    });
+</script>
